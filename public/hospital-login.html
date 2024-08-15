@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Login</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f7f6f3;
+            color: #333;
+            padding: 20px;
+            margin: 0;
+        }
+
+        h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        form {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        label {
+            font-weight: 500;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            background-color: #2c3e50;
+            color: #ffffff;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #34495e;
+        }
+
+        .alert {
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h2>Hospital Login</h2>
+    <div class="alert hidden"></div>
+    <form id="hospitalLoginForm">
+        <label for="hospital_name">Hospital Name:</label><br>
+        <input type="text" id="hospital_name" name="hospital_name" required><br>
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password" required><br><br>
+        <input type="submit" value="Login">
+    </form>
+
+    <script>
+        document.getElementById('hospitalLoginForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const hospital_name = document.getElementById('hospital_name').value;
+            const password = document.getElementById('password').value;
+
+            fetch('/hospital/log', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ hospital_name: hospital_name, password: password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const alertBox = document.querySelector('.alert');
+                if (data.error) {
+                    alertBox.textContent = data.error;
+                    alertBox.className = 'alert alert-danger';
+                } else {
+                    alertBox.textContent = data.message;
+                    alertBox.className = 'alert alert-success';
+                    // Redirect to a dashboard or another page if needed
+                    // window.location.href = '/hospital_dashboard';
+                }
+                alertBox.classList.remove('hidden');
+            })
+            .catch(error => {
+                const alertBox = document.querySelector('.alert');
+                alertBox.textContent = 'Something went wrong!';
+                alertBox.className = 'alert alert-danger';
+                alertBox.classList.remove('hidden');
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Departments</title>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const hospitalName = urlParams.get('hospital_name');
+      if (hospitalName) {
+        document.getElementById('hospitalName').value = hospitalName;
+        loadDepartments();
+      }
+    });
+
+    async function addDepartment() {
+      const hospitalName = document.getElementById('hospitalName').value;
+      const departmentName = document.getElementById('departmentName').value;
+
+      const response = await fetch('/department/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ hospital_name: hospitalName, department_name: departmentName })
+      });
+
+      const result = await response.json();
+      alert(result.message);
+      loadDepartments();
+    }
+
+    async function loadDepartments() {
+      const hospitalName = document.getElementById('hospitalName').value;
+      const response = await fetch(`/departments/${hospitalName}`);
+      const departments = await response.json();
+
+      const departmentList = document.getElementById('departmentList');
+      departmentList.innerHTML = '';
+      departments.forEach(department => {
+        const li = document.createElement('li');
+        li.textContent = department.department_name;
+        departmentList.appendChild(li);
+      });
+    }
+
+    async function editDepartment(departmentId) {
+      const newDepartmentName = prompt('Enter new department name:');
+      if (!newDepartmentName) return;
+
+      const response = await fetch(`/department/${departmentId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ department_name: newDepartmentName })
+      });
+
+      const result = await response.json();
+      alert(result.message);
+      loadDepartments();
+    }
+  </script>
+</head>
+<body>
+  <h1>Manage Departments</h1>
+  <input type="text" id="hospitalName" placeholder="Hospital Name" readonly>
+  <input type="text" id="departmentName" placeholder="Department Name">
+  <button onclick="addDepartment()">Add Department</button>
+  <ul id="departmentList"></ul>
+</body>
+</html>
